@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package movie;
+
+option go_package = "github.com/Portfolio-Advanced-software/BingeBuster-MovieService/moviepb";
+
+
+
+service MovieService {
+    rpc CreateMovie(CreateMovieReq) returns (CreateMovieRes);
+    rpc ReadMovie(ReadMovieReq) returns (ReadMovieRes);
+    rpc UpdateMovie(UpdateMovieReq) returns (UpdateMovieRes);
+    rpc DeleteMovie(DeleteMovieReq) returns (DeleteMovieRes);
+    rpc ListMovies(ListMoviesReq) returns (stream ListMoviesRes);
+}
+
+
+message Movie {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    string release_date = 4;
+    string director = 5;
+    string genre = 6;
+    float rating = 7;
+    int32 runtime = 8;
+    string poster = 9;
+}
+
+
+message CreateMovieReq {
+    Movie movie = 1; // Movie id blank
+}
+message CreateMovieRes {
+    Movie movie = 1; // Movie id filled in
+}
+
+message UpdateMovieReq {
+    Movie movie = 1;
+}
+message UpdateMovieRes {
+    Movie movie = 1;
+}
+
+message ReadMovieReq {
+    string id = 1;
+}
+message ReadMovieRes {
+    Movie movie = 1;
+}
+
+message DeleteMovieReq {
+    string id = 1;
+}
+message DeleteMovieRes {
+    bool success = 1;
+}
+
+message ListMoviesReq {}
+
+message ListMoviesRes {
+    Movie movie = 1;
+}
