@@ -23,7 +23,7 @@ jobs:
           go get -u google.golang.org/grpc
 
       - name: Build API server
-        run: go build -o server ./cmd/server/main.go
+        run: go build -o server ./main.go
 
       - name: Start API server
         run: ./server &
