@@ -1,58 +1,44 @@
-name: Load Test gRPC API with JMeter
+name: Load Test gRPC Golang API
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  test:
+  load_test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Setup Go
+      - name: Set up Go environment
         uses: actions/setup-go@v2
         with:
-          go-version: '1.20'
-
+          go-version: '1.16'
+          
       - name: Install dependencies
         run: |
           go mod download
-          go get -u google.golang.org/grpc
-
-      - name: Build API server
-        run: go build -o server ./main.go
-
+          
+      - name: Build API
+        run: |
+          go build -o api .
+          
       - name: Start API server
-        run: ./server &
-
-      - name: Install Docker Compose
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+          ./api &
+        background: true
 
-      - name: Run JMeter load tests
+      - name: Install JMeter
         run: |
-          docker-compose up -d
-          docker-compose ps
-          docker-compose logs
-          docker-compose exec jmeter \
-            jmeter -n \
-              -t test.jmx \
-              -Jhost=localhost \
-              -Jport=50051 \
-              -Jusers=10 \
-              -Jduration=60 \
-              -Jrampup=10 \
-              -Jprotocol=grpc \
-              -l results.jtl \
-              -e -o report
-          docker-compose down
+          sudo apt update
+          sudo apt install -y openjdk-8-jdk
+          wget https://mirror.olnevhost.net/pub/apache/jmeter/binaries/apache-jmeter-5.4.1.tgz
+          tar -xzf apache-jmeter-5.4.1.tgz
+          rm apache-jmeter-5.4.1.tgz
+          export JMETER_HOME=$(pwd)/apache-jmeter-5.4.1/
+          export PATH=$JMETER_HOME/bin:$PATH
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-results
-          path: results.jtl
+      - name: Run JMeter test plan
+        run: |
+          jmeter -n -t ./path/to/test/plan.jmx -l results.jtl -j jmeter.log -e -o report/
