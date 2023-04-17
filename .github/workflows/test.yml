@@ -1,0 +1,38 @@
+name: Load Test gRPC API with JMeter
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
+
+      - name: Build API server
+        run: go build -o server ./main.go
+
+      - name: Start API server
+        run: ./server &
+
+      - name: Install JMeter
+        uses: huahcoding/setup-jmeter@v1
+        with:
+          version: '5.4.1'
+
+      - name: Run JMeter load tests
+        run: jmeter -n -t test.jmx -Jhost=localhost -Jport=50051 -Jusers=10 -Jduration=60 -Jrampup=10 -Jprotocol=grpc -l results.jtl -e -o report
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: results.jtl
