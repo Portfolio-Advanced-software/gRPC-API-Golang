@@ -1,0 +1,55 @@
+name: Load Test gRPC API with JMeter
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16'
+
+      - name: Install dependencies
+        run: |
+          go mod download
+          go get -u google.golang.org/grpc
+
+      - name: Build API server
+        run: go build -o server ./cmd/server/main.go
+
+      - name: Start API server
+        run: ./server &
+
+      - name: Install JMeter
+        uses: peter-evans/docker-compose-action@v3.0.0
+        with:
+          compose-file: docker-compose.yml
+          run: jmeter
+
+      - name: Run JMeter load tests
+        run: |
+          docker-compose exec jmeter \
+            jmeter -n \
+              -t test.jmx \
+              -Jhost=localhost \
+              -Jport=50051 \
+              -Jusers=10 \
+              -Jduration=60 \
+              -Jrampup=10 \
+              -Jprotocol=grpc \
+              -l results.jtl \
+              -e -o report
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: results.jtl
