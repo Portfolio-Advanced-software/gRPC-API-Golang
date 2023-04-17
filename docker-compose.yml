@@ -1,9 +1,8 @@
 version: '3'
 services:
-  api:
-    image: grpc-api-golang_api
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "50051:50051"
+  jmeter:
+    image: justb4/jmeter:latest
+    volumes:
+      - ./test.jmx:/jmeter/test.jmx
+      - ./results:/jmeter/results
+    command: -n -t /jmeter/test.jmx -l /jmeter/results/testresults.jtl -Jhost=localhost -Jport=50051 -Jusers=10 -Jduration=60 -Jrampup=10 -Jprotocol=grpc
