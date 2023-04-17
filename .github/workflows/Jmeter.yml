@@ -27,7 +27,7 @@ jobs:
       - name: Start API server
         run: |
           ./api &
-        background: true
+          background: true
 
       - name: Install JMeter
         run: |
