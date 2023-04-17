@@ -12,21 +12,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-#       - name: Setup Go
-#         uses: actions/setup-go@v2
-#         with:
-#           go-version: '1.20'
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
 
-#       - name: Install dependencies
-#         run: |
-#           go mod download
-#           go get -u google.golang.org/grpc
+      - name: Install dependencies
+        run: |
+          go mod download
+          go get -u google.golang.org/grpc
 
-#       - name: Build API server
-#         run: go build -o server ./main.go
+      - name: Build API server
+        run: go build -o server ./main.go
 
-#       - name: Start API server
-#         run: ./server &
+      - name: Start API server
+        run: ./server &
 
       - name: Install Docker Compose
         run: |
@@ -35,9 +35,6 @@ jobs:
 
       - name: Run JMeter load tests
         run: |
-          docker-compose up -d
-          docker-compose ps
-          docker-compose logs
           docker-compose exec jmeter \
             jmeter -n \
               -t test.jmx \
