@@ -20,7 +20,7 @@ jobs:
       - name: Install JMeter
         run: |
           wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.4.3.tgz
-          tar -xzf apache-jmeter-5.4.1.tgz
+          tar -xzf apache-jmeter-5.4.3.tgz
 
       - name: Build the gRPC API server
         run: |
