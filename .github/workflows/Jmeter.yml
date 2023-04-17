@@ -35,6 +35,9 @@ jobs:
 
       - name: Run JMeter load tests
         run: |
+          docker-compose up -d
+          docker-compose ps
+          docker-compose logs
           docker-compose exec jmeter \
             jmeter -n \
               -t test.jmx \
