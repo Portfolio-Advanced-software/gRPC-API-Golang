@@ -1,44 +1,45 @@
-name: Load Test gRPC Golang API
+name: JMeter Test
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  load_test:
+  jmeter:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Set up Go environment
+      - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.16'
-          
-      - name: Install dependencies
-        run: |
-          go mod download
-          
-      - name: Build API
-        run: |
-          go build -o api .
-          
-      - name: Start API server
-        run: |
-          ./api &
-          background: true
+          go-version: '1.17'
 
       - name: Install JMeter
         run: |
-          sudo apt update
-          sudo apt install -y openjdk-8-jdk
-          wget https://mirror.olnevhost.net/pub/apache/jmeter/binaries/apache-jmeter-5.4.1.tgz
+          wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.4.1.tgz
           tar -xzf apache-jmeter-5.4.1.tgz
-          rm apache-jmeter-5.4.1.tgz
-          export JMETER_HOME=$(pwd)/apache-jmeter-5.4.1/
-          export PATH=$JMETER_HOME/bin:$PATH
 
-      - name: Run JMeter test plan
+      - name: Build the gRPC API server
         run: |
-          jmeter -n -t ./path/to/test/plan.jmx -l results.jtl -j jmeter.log -e -o report/
+          go build -o grpc-server cmd/server/main.go
+
+      - name: Start the gRPC API server
+        run: |
+          ./grpc-server &
+          sleep 5
+
+      - name: Run JMeter tests
+        run: |
+          ./apache-jmeter-5.4.1/bin/jmeter \
+            -n \
+            -t jmeter/test-plan.jmx \
+            -l jmeter/test-results.jtl \
+            -Jgrpc.host=localhost \
+            -Jgrpc.port=50051 \
+            -Jgrpc.test.request.payload.filepath=jmeter/test-request.json
+
+      - name: Print JMeter test results
+        run: cat jmeter/test-results.jtl
