@@ -28,14 +28,14 @@ jobs:
       - name: Start API server
         run: ./server &
 
-      - name: Install JMeter
-        uses: peter-evans/docker-compose-action@v3.0.0
-        with:
-          compose-file: docker-compose.yml
-          run: jmeter
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Run JMeter load tests
         run: |
+          docker-compose up -d
           docker-compose exec jmeter \
             jmeter -n \
               -t test.jmx \
@@ -47,6 +47,7 @@ jobs:
               -Jprotocol=grpc \
               -l results.jtl \
               -e -o report
+          docker-compose down
 
       - name: Upload test results
         uses: actions/upload-artifact@v2
