@@ -24,7 +24,7 @@ jobs:
 
       - name: Build the gRPC API server
         run: |
-          go build -o grpc-server cmd/server/main.go
+          go build -o grpc-server ./main.go
 
       - name: Start the gRPC API server
         run: |
