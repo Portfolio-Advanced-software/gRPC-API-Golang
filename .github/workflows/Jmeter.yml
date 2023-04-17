@@ -33,7 +33,7 @@ jobs:
 
       - name: Run JMeter tests
         run: |
-          ./apache-jmeter-5.4.1/bin/jmeter \
+          ./apache-jmeter-5.4.3/bin/jmeter \
             -n \
             -t jmeter/test-plan.jmx \
             -l jmeter/test-results.jtl \
